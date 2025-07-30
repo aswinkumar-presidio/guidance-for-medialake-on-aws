@@ -246,13 +246,16 @@ class OpenSearchCluster(Construct):
                     multi_az_with_standby_enabled=props.multi_az_with_standby_enabled,
                 ),
                 ebs_options=ebs_options,
-                vpc_options=opensearch.CfnDomain.VPCOptionsProperty(
-                    subnet_ids=(
-                        [subnet.subnet_id for subnet in vpc_subnets]
-                        if vpc_subnets
-                        else None
-                    ),
-                    security_group_ids=[os_security_group.security_group_id],
+                vpc_options=(
+                    None if getattr(config, 'opensearch_public_access', False) 
+                    else opensearch.CfnDomain.VPCOptionsProperty(
+                        subnet_ids=(
+                            [subnet.subnet_id for subnet in vpc_subnets]
+                            if vpc_subnets
+                            else None
+                        ),
+                        security_group_ids=[os_security_group.security_group_id],
+                    )
                 ),
                 encryption_at_rest_options=opensearch.CfnDomain.EncryptionAtRestOptionsProperty(
                     enabled=props.encryption_at_rest
